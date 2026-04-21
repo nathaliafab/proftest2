@@ -79,6 +79,9 @@ docker compose -f sistema/docker-compose.yml run --rm client npm run build
 docker compose -f sistema/docker-compose.yml run --rm tests npm test
 ```
 
+Os testes usam um servico dedicado (`server-tests`) com diretório de dados isolado em volume Docker.
+Assim, os arquivos `sistema/server/data/students.json` e `sistema/server/data/classes.json` nao sao alterados durante a execucao dos testes.
+
 ## API de alunos
 
 Base URL: http://localhost:3001

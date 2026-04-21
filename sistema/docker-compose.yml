@@ -10,6 +10,18 @@ services:
     environment:
       - NODE_ENV=development
       - PORT=3001
+      - DATA_DIR=/app/data
+    command: npm run dev
+
+  server-tests:
+    build: ./server
+    container_name: sistema-server-tests
+    environment:
+      - NODE_ENV=test
+      - PORT=3001
+      - DATA_DIR=/app/test-data
+    volumes:
+      - server_test_data:/app/test-data
     command: npm run dev
 
   client:
@@ -29,9 +41,11 @@ services:
     build: ./tests
     container_name: sistema-tests
     depends_on:
-      - server
-      - client
+      - server-tests
     environment:
-      - API_URL=http://server:3001
+      - API_URL=http://server-tests:3001
       - BASE_URL=http://client:3000
     command: npm test
+
+volumes:
+  server_test_data:

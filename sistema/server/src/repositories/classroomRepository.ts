@@ -2,7 +2,9 @@ import { promises as fs } from "fs";
 import path from "path";
 import { Classroom } from "../types/classroom";
 
-const dataDirectory = path.resolve(process.cwd(), "data");
+const dataDirectory = process.env.DATA_DIR
+  ? path.resolve(process.env.DATA_DIR)
+  : path.resolve(process.cwd(), "data");
 const dataFilePath = path.join(dataDirectory, "classes.json");
 
 const ensureDataFile = async (): Promise<void> => {
