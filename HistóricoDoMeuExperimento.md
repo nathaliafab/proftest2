@@ -1,0 +1,8 @@
+GPT-5.3-Codex (Medium) - GitHub Copilot - Skills and Agents		
+
+| Prompt | Issues | Overall result | Overall sentiment | Observations |
+| :--- | :--- | :--- | :--- | :--- |
+| /create-agent Com base nesse arquivo e as direcoes nele, crie agentes para executar a tarefa como um todo de forma segura, limpa, e com as melhores práticas. (pdf da atividade em anexo ao prompt) | - | OK | Achei os arquivos gerados bem simples, mas eu usaria novamente para a mesma tarefa. | - |
+| Criar um arquivo de instruções sempre ativo para política Docker-only do projeto e uma skill de validação final de entrega (build, testes, checklist de risco, checklist de documentação). | - | OK | Eu usaria novamente para a mesma tarefa. | Removi uma menção a abrir PR que o modelo incluiu na Skill. |
+| Criar um prompt reutilizável de abertura de tarefa (template com objetivo, restrições, definição de pronto e critérios de teste). | muito genérico | Ruim | Eu usaria novamente para a mesma tarefa, mas com um prompt melhor direcionado. | - |
+| gostaria que tivesse um foco maior nas tecnologias que devem ser usadas e quais práticas devem ser seguidas: deve ser uma aplicação web com cliente React em Typescript, e o servidor Node também em Typescript. Para cenários, use a linguagem Gherkin do Cucumber, que deve ser usado para implementar os testes de aceitação. | - | OK | Eu usaria novamente para a mesma tarefa. | tive a impressão de que o modelo não conseguiu ler o PDF da atividade. por isso mandei no prompt |
