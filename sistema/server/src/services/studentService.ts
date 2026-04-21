@@ -2,6 +2,7 @@ import crypto from "crypto";
 import { z } from "zod";
 import { readStudents, writeStudents } from "../repositories/studentRepository";
 import { Student, StudentInput } from "../types/student";
+import { buildDefaultEvaluations, normalizeStudents } from "./studentNormalization";
 
 const normalizeCpf = (cpf: string): string => cpf.replace(/\D/g, "");
 
@@ -27,13 +28,13 @@ const notFoundError = (): Error => {
 };
 
 export const listStudents = async (): Promise<Student[]> => {
-  const students = await readStudents();
+  const students = normalizeStudents(await readStudents());
   return students.sort((a, b) => a.name.localeCompare(b.name));
 };
 
 export const createStudent = async (payload: StudentInput): Promise<Student> => {
   const parsed = studentInputSchema.parse(payload);
-  const students = await readStudents();
+  const students = normalizeStudents(await readStudents());
 
   if (students.some((student) => student.cpf === parsed.cpf)) {
     throw duplicateError("cpf");
@@ -49,6 +50,7 @@ export const createStudent = async (payload: StudentInput): Promise<Student> => 
     name: parsed.name,
     cpf: parsed.cpf,
     email: parsed.email,
+    evaluations: buildDefaultEvaluations(),
     createdAt: now,
     updatedAt: now
   };
@@ -61,7 +63,7 @@ export const createStudent = async (payload: StudentInput): Promise<Student> => 
 
 export const updateStudent = async (id: string, payload: StudentInput): Promise<Student> => {
   const parsed = studentInputSchema.parse(payload);
-  const students = await readStudents();
+  const students = normalizeStudents(await readStudents());
   const studentIndex = students.findIndex((student) => student.id === id);
 
   if (studentIndex < 0) {
@@ -91,7 +93,7 @@ export const updateStudent = async (id: string, payload: StudentInput): Promise<
 };
 
 export const deleteStudent = async (id: string): Promise<void> => {
-  const students = await readStudents();
+  const students = normalizeStudents(await readStudents());
   const filteredStudents = students.filter((student) => student.id !== id);
 
   if (filteredStudents.length === students.length) {

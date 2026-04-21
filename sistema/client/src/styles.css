@@ -18,8 +18,34 @@ body {
   min-height: 100vh;
   padding: 24px;
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: center;
+}
+
+.content-shell {
+  width: min(1100px, 100%);
+}
+
+.top-nav {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.nav-link {
+  text-decoration: none;
+  color: #0f2b4f;
+  background: #e4eefb;
+  border: 1px solid #c3d9f4;
+  border-radius: 999px;
+  padding: 8px 14px;
+  font-weight: 700;
+}
+
+.nav-link.active {
+  background: #0a5db5;
+  color: #fff;
+  border-color: #0a5db5;
 }
 
 .panel {
@@ -189,6 +215,95 @@ button:disabled {
   margin-top: 20px;
 }
 
+.assessment-table-wrapper {
+  margin-top: 12px;
+  overflow-x: auto;
+}
+
+.assessment-legend {
+  margin-top: 14px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  padding: 10px;
+  border: 1px solid #d8e6f8;
+  border-radius: 10px;
+  background: #f6faff;
+}
+
+.legend-text {
+  color: #34506f;
+  font-size: 0.9rem;
+  margin-right: 6px;
+}
+
+.concept-badge {
+  display: inline-block;
+  border-radius: 999px;
+  padding: 4px 10px;
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.4px;
+}
+
+.concept-badge.mana {
+  color: #fff;
+  background: #bd1f1f;
+}
+
+.concept-badge.mpa {
+  color: #5a3d00;
+  background: #ffd86a;
+}
+
+.concept-badge.ma {
+  color: #fff;
+  background: #1f8a38;
+}
+
+.assessment-controls {
+  margin-top: 14px;
+  display: grid;
+  grid-template-columns: repeat(5, minmax(140px, 1fr));
+  gap: 10px;
+}
+
+.assessment-control {
+  display: grid;
+  gap: 6px;
+}
+
+.assessment-control label {
+  font-size: 0.86rem;
+  font-weight: 700;
+  color: #2d4867;
+}
+
+.assessment-control select {
+  width: 100%;
+  border: 1px solid #b7cae7;
+  border-radius: 8px;
+  padding: 10px;
+  background: #fff;
+  font-size: 0.95rem;
+}
+
+.assessment-cell {
+  display: grid;
+  gap: 6px;
+}
+
+.assessment-table select {
+  width: 100%;
+  min-width: 88px;
+  border: 1px solid #b7cae7;
+  border-radius: 8px;
+  padding: 8px;
+  background: #fff;
+  font-weight: 700;
+}
+
 .student-table {
   width: 100%;
   border-collapse: collapse;
@@ -212,8 +327,22 @@ button:disabled {
     padding: 12px;
   }
 
+  .top-nav {
+    flex-wrap: wrap;
+    margin-bottom: 10px;
+  }
+
+  .nav-link {
+    width: 100%;
+    text-align: center;
+  }
+
   .panel {
     padding: 16px;
+  }
+
+  .assessment-controls {
+    grid-template-columns: 1fr;
   }
 
   .student-table,

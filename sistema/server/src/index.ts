@@ -1,6 +1,7 @@
 import cors from "cors";
 import express from "express";
 import studentRoutes from "./routes/studentRoutes";
+import assessmentRoutes from "./routes/assessmentRoutes";
 import { errorHandler } from "./middleware/errorHandler";
 
 const app = express();
@@ -14,6 +15,7 @@ app.get("/health", (_req, res) => {
 });
 
 app.use("/students", studentRoutes);
+app.use("/assessments", assessmentRoutes);
 
 app.use(errorHandler);
 

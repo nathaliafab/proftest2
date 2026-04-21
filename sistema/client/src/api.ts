@@ -1,4 +1,4 @@
-import { Student, StudentInput } from "./types";
+import { AssessmentMatrix, AssessmentRow, EvaluationConcept, Student, StudentInput } from "./types";
 
 const baseUrl = process.env.REACT_APP_API_URL ?? "http://localhost:3001";
 
@@ -57,4 +57,31 @@ export const deleteStudent = async (id: string): Promise<void> => {
   if (!response.ok) {
     throw new Error(await parseError(response));
   }
+};
+
+export const getAssessmentMatrix = async (): Promise<AssessmentMatrix> => {
+  const response = await fetch(`${baseUrl}/assessments`);
+
+  if (!response.ok) {
+    throw new Error(await parseError(response));
+  }
+
+  return (await response.json()) as AssessmentMatrix;
+};
+
+export const updateAssessmentRow = async (
+  studentId: string,
+  evaluations: Record<string, EvaluationConcept>
+): Promise<AssessmentRow> => {
+  const response = await fetch(`${baseUrl}/assessments/${studentId}`, {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ evaluations })
+  });
+
+  if (!response.ok) {
+    throw new Error(await parseError(response));
+  }
+
+  return (await response.json()) as AssessmentRow;
 };

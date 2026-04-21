@@ -9,12 +9,24 @@ interface Student {
   email: string;
 }
 
+interface AssessmentMatrix {
+  goals: string[];
+  concepts: string[];
+  rows: Array<{
+    studentId: string;
+    studentName: string;
+    evaluations: Record<string, string>;
+  }>;
+}
+
 interface TestContext {
   api: AxiosInstance;
   students: Student[];
   createdStudent: Student | null;
   updatedStudent: Student | null;
   deleteTargetId: string | null;
+  matrix: AssessmentMatrix | null;
+  assessmentTargetId: string | null;
   lastStatusCode: number | null;
 }
 
@@ -27,6 +39,8 @@ const context: TestContext = {
   createdStudent: null,
   updatedStudent: null,
   deleteTargetId: null,
+  matrix: null,
+  assessmentTargetId: null,
   lastStatusCode: null
 };
 
@@ -65,6 +79,8 @@ Before(async () => {
   context.createdStudent = null;
   context.updatedStudent = null;
   context.deleteTargetId = null;
+  context.matrix = null;
+  context.assessmentTargetId = null;
   context.lastStatusCode = null;
 });
 
@@ -101,6 +117,7 @@ Given(
     assert.strictEqual(response.status, 201);
     context.createdStudent = response.data;
     context.deleteTargetId = response.data.id;
+    context.assessmentTargetId = response.data.id;
   }
 );
 
@@ -156,5 +173,86 @@ When("eu tento cadastrar um aluno com email invalido", async () => {
 });
 
 Then("devo receber erro de validacao", () => {
+  assert.strictEqual(context.lastStatusCode, 400);
+});
+
+When("eu consulto a matriz de avaliacoes", async () => {
+  const response = await context.api.get<AssessmentMatrix>("/assessments");
+  assert.strictEqual(response.status, 200);
+  context.matrix = response.data;
+});
+
+Then("devo ver a meta {string} na matriz", (goal: string) => {
+  assert.ok(context.matrix);
+  assert.ok(context.matrix.goals.includes(goal));
+});
+
+Then("a matriz deve conter o aluno {string}", (studentName: string) => {
+  assert.ok(context.matrix);
+  assert.ok(context.matrix.rows.some((row) => row.studentName === studentName));
+});
+
+When(
+  "eu atualizo a avaliacao desse aluno na meta {string} para {string}",
+  async (goal: string, concept: string) => {
+    assert.ok(context.assessmentTargetId);
+
+    const matrixResponse = await context.api.get<AssessmentMatrix>("/assessments");
+    assert.strictEqual(matrixResponse.status, 200);
+    const row = matrixResponse.data.rows.find(
+      (item) => item.studentId === context.assessmentTargetId
+    );
+    assert.ok(row);
+
+    const response = await context.api.put(`/assessments/${context.assessmentTargetId}`, {
+      evaluations: {
+        ...row.evaluations,
+        [goal]: concept
+      }
+    });
+
+    assert.strictEqual(response.status, 200);
+  }
+);
+
+Then("a avaliacao desse aluno na meta {string} deve ser {string}", async (goal: string, concept: string) => {
+  assert.ok(context.assessmentTargetId);
+
+  const response = await context.api.get<AssessmentMatrix>("/assessments");
+  assert.strictEqual(response.status, 200);
+  const row = response.data.rows.find((item) => item.studentId === context.assessmentTargetId);
+
+  assert.ok(row);
+  assert.strictEqual(row.evaluations[goal], concept);
+});
+
+When(
+  "eu tento atualizar a avaliacao desse aluno na meta {string} para conceito invalido",
+  async (goal: string) => {
+    assert.ok(context.assessmentTargetId);
+
+    const matrixResponse = await context.api.get<AssessmentMatrix>("/assessments");
+    assert.strictEqual(matrixResponse.status, 200);
+    const row = matrixResponse.data.rows.find(
+      (item) => item.studentId === context.assessmentTargetId
+    );
+    assert.ok(row);
+
+    const response = await context.api.put(`/assessments/${context.assessmentTargetId}`, {
+      evaluations: {
+        ...row.evaluations,
+        [goal]: "INVALIDO"
+      }
+    });
+
+    if (response.status < 400) {
+      throw new Error("Era esperado erro de validacao para conceito invalido");
+    }
+
+    context.lastStatusCode = response.status;
+  }
+);
+
+Then("devo receber erro de validacao na avaliacao", () => {
   assert.strictEqual(context.lastStatusCode, 400);
 });

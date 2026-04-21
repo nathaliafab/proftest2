@@ -18,6 +18,16 @@ Gerenciamento de alunos com:
 - remocao de aluno
 - pagina especifica com listagem de alunos cadastrados
 
+Gerenciamento de avaliacoes em pagina separada com:
+
+- tabela por aluno e metas
+- colunas de metas (Requisitos, Testes, Documentacao, BoasPraticas)
+- conceitos MANA, MPA e MA por meta
+- alteracao de avaliacao por aluno/meta
+- legenda visual dos conceitos (MANA vermelho, MPA amarelo, MA verde)
+- filtro por aluno e por meta/conceito
+- ordenacao por aluno ou por meta (crescente/decrescente)
+
 Cada aluno possui os campos:
 
 - nome
@@ -71,6 +81,24 @@ Base URL: http://localhost:3001
 - PUT /students/:id: altera um aluno
 - DELETE /students/:id: remove um aluno
 
+## API de avaliacoes
+
+- GET /assessments: retorna matriz de avaliacoes (metas, conceitos e linhas por aluno)
+- PUT /assessments/:studentId: atualiza as avaliacoes do aluno informado
+
+### Exemplo de payload para atualizar avaliacao
+
+```json
+{
+	"evaluations": {
+		"Requisitos": "MPA",
+		"Testes": "MA",
+		"Documentacao": "MANA",
+		"BoasPraticas": "MPA"
+	}
+}
+```
+
 ### Exemplo de payload
 
 ```json
@@ -97,6 +125,11 @@ Base URL: http://localhost:3001
 - confirmacao antes de remover aluno
 - notificacoes em toast para sucesso, erro e avisos de envio
 
+## Paginas da interface
+
+- /alunos: gerenciamento de cadastro de alunos
+- /avaliacoes: gerenciamento das avaliacoes por metas
+
 ## Cenarios de aceitacao (Gherkin)
 
 Arquivo: sistema/tests/src/features/gerenciamento-alunos.feature
@@ -105,3 +138,9 @@ Arquivo: sistema/tests/src/features/gerenciamento-alunos.feature
 - alterar aluno existente
 - remover aluno existente
 - rejeitar cadastro com email invalido
+
+Arquivo: sistema/tests/src/features/gerenciamento-avaliacoes.feature
+
+- listar matriz de avaliacoes por aluno
+- atualizar avaliacao por meta
+- rejeitar conceito invalido na avaliacao
