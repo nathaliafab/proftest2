@@ -89,6 +89,14 @@ Base URL: http://localhost:3001
 - CPF unico
 - email unico
 
+## Feedback visual na interface
+
+- avisos de campo obrigatorio por campo (nome, CPF e email)
+- indicacao visual de campo invalido no formulario
+- aviso explicito quando o usuario tenta informar letras/simbolos no CPF
+- confirmacao antes de remover aluno
+- notificacoes em toast para sucesso, erro e avisos de envio
+
 ## Cenarios de aceitacao (Gherkin)
 
 Arquivo: sistema/tests/src/features/gerenciamento-alunos.feature

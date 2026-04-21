@@ -60,6 +60,95 @@ input {
   font-size: 1rem;
 }
 
+input.invalid {
+  border-color: #b52020;
+  background: #fff5f5;
+}
+
+input:focus {
+  outline: 2px solid #90bff5;
+  outline-offset: 1px;
+}
+
+.helper-text {
+  margin: 0;
+  color: #465d7f;
+  font-size: 0.88rem;
+}
+
+.toast-container {
+  position: fixed;
+  top: 16px;
+  right: 16px;
+  z-index: 1000;
+  display: grid;
+  gap: 8px;
+  width: min(360px, calc(100vw - 24px));
+}
+
+.toast {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px;
+  border-radius: 10px;
+  padding: 10px 12px;
+  box-shadow: 0 8px 20px #1a3f6f2b;
+  border: 1px solid transparent;
+}
+
+.toast p {
+  margin: 0;
+  font-size: 0.92rem;
+  line-height: 1.3;
+}
+
+.toast.success {
+  background: #e9f9ef;
+  border-color: #bde7ca;
+  color: #106231;
+}
+
+.toast.error {
+  background: #fee;
+  border-color: #f7c6c6;
+  color: #9d1f1f;
+}
+
+.toast.warning {
+  background: #fff6e6;
+  border-color: #f2d39b;
+  color: #7a4b00;
+}
+
+.toast-close {
+  border: none;
+  background: transparent;
+  color: inherit;
+  font-weight: 700;
+  cursor: pointer;
+  font-size: 1rem;
+  line-height: 1;
+  padding: 2px 4px;
+}
+
+.field-warning {
+  margin: 0;
+  color: #7a4b00;
+  background: #fff6e6;
+  border: 1px solid #f2d39b;
+  border-radius: 8px;
+  padding: 8px;
+  font-size: 0.9rem;
+}
+
+.field-error {
+  margin: 0;
+  color: #9d1f1f;
+  font-size: 0.9rem;
+  font-weight: 700;
+}
+
 .actions {
   display: flex;
   gap: 8px;
@@ -94,15 +183,6 @@ button.danger {
 button:disabled {
   opacity: 0.6;
   cursor: not-allowed;
-}
-
-.error {
-  color: #9d1f1f;
-  background: #fee;
-  border: 1px solid #f7c6c6;
-  border-radius: 8px;
-  padding: 10px;
-  margin-top: 14px;
 }
 
 .student-list-section {

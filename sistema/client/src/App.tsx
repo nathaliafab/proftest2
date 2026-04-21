@@ -10,28 +10,92 @@ const initialForm: StudentInput = {
 
 const onlyDigits = (value: string): string => value.replace(/\D/g, "");
 
+interface TouchedFields {
+  name: boolean;
+  cpf: boolean;
+  email: boolean;
+}
+
+interface FormErrors {
+  name?: string;
+  cpf?: string;
+  email?: string;
+}
+
+interface Toast {
+  id: number;
+  message: string;
+  type: "success" | "error" | "warning";
+}
+
+const initialTouched: TouchedFields = {
+  name: false,
+  cpf: false,
+  email: false
+};
+
+const validateForm = (payload: StudentInput): FormErrors => {
+  const errors: FormErrors = {};
+
+  if (!payload.name) {
+    errors.name = "Nome e obrigatorio.";
+  } else if (payload.name.length < 3) {
+    errors.name = "Nome deve ter ao menos 3 caracteres.";
+  }
+
+  if (!payload.cpf) {
+    errors.cpf = "CPF e obrigatorio.";
+  } else if (!/^\d{11}$/.test(payload.cpf)) {
+    errors.cpf = "CPF deve conter 11 digitos numericos.";
+  }
+
+  if (!payload.email) {
+    errors.email = "Email e obrigatorio.";
+  } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(payload.email)) {
+    errors.email = "Email invalido.";
+  }
+
+  return errors;
+};
+
 const App = (): JSX.Element => {
   const [students, setStudents] = useState<Student[]>([]);
   const [form, setForm] = useState<StudentInput>(initialForm);
   const [editingId, setEditingId] = useState<string | null>(null);
+  const [touched, setTouched] = useState<TouchedFields>(initialTouched);
+  const [formErrors, setFormErrors] = useState<FormErrors>({});
+  const [hasSubmitted, setHasSubmitted] = useState<boolean>(false);
+  const [cpfOnlyNumbersWarning, setCpfOnlyNumbersWarning] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
-  const [error, setError] = useState<string>("");
+  const [toasts, setToasts] = useState<Toast[]>([]);
 
   const formTitle = useMemo(
     () => (editingId ? "Alterar aluno" : "Incluir aluno"),
     [editingId]
   );
 
+  const showToast = (message: string, type: Toast["type"]): void => {
+    const id = Date.now() + Math.floor(Math.random() * 1000);
+    setToasts((prev) => [...prev, { id, message, type }]);
+
+    window.setTimeout(() => {
+      setToasts((prev) => prev.filter((toast) => toast.id !== id));
+    }, 4000);
+  };
+
+  const removeToast = (id: number): void => {
+    setToasts((prev) => prev.filter((toast) => toast.id !== id));
+  };
+
   const loadStudents = async (): Promise<void> => {
     setIsLoading(true);
-    setError("");
 
     try {
       const data = await getStudents();
       setStudents(data);
     } catch (loadError) {
-      setError((loadError as Error).message);
+      showToast((loadError as Error).message, "error");
     } finally {
       setIsLoading(false);
     }
@@ -44,30 +108,61 @@ const App = (): JSX.Element => {
   const resetForm = (): void => {
     setForm(initialForm);
     setEditingId(null);
+    setTouched(initialTouched);
+    setFormErrors({});
+    setHasSubmitted(false);
+    setCpfOnlyNumbersWarning(false);
+  };
+
+  const updateField = (field: keyof StudentInput, value: string): void => {
+    const updatedForm = { ...form, [field]: value };
+    setForm(updatedForm);
+
+    if (hasSubmitted || touched[field]) {
+      setFormErrors(validateForm(updatedForm));
+    }
+  };
+
+  const markFieldTouched = (field: keyof StudentInput): void => {
+    const updatedTouched = { ...touched, [field]: true };
+    setTouched(updatedTouched);
+    setFormErrors(validateForm(form));
   };
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>): Promise<void> => {
     event.preventDefault();
+    setHasSubmitted(true);
     setIsSubmitting(true);
-    setError("");
+
+    const payload: StudentInput = {
+      name: form.name.trim(),
+      cpf: onlyDigits(form.cpf),
+      email: form.email.trim().toLowerCase()
+    };
+
+    const validationErrors = validateForm(payload);
+    setFormErrors(validationErrors);
+    setTouched({ name: true, cpf: true, email: true });
+
+    if (Object.keys(validationErrors).length > 0) {
+      showToast("Revise os campos obrigatorios antes de enviar.", "warning");
+      setIsSubmitting(false);
+      return;
+    }
 
     try {
-      const payload: StudentInput = {
-        name: form.name.trim(),
-        cpf: onlyDigits(form.cpf),
-        email: form.email.trim().toLowerCase()
-      };
-
       if (editingId) {
         await updateStudent(editingId, payload);
+        showToast("Aluno alterado com sucesso.", "success");
       } else {
         await createStudent(payload);
+        showToast("Aluno cadastrado com sucesso.", "success");
       }
 
       resetForm();
       await loadStudents();
     } catch (submitError) {
-      setError((submitError as Error).message);
+      showToast((submitError as Error).message, "error");
     } finally {
       setIsSubmitting(false);
     }
@@ -80,22 +175,45 @@ const App = (): JSX.Element => {
       email: student.email
     });
     setEditingId(student.id);
-    setError("");
+    setTouched(initialTouched);
+    setFormErrors({});
+    setHasSubmitted(false);
+    setCpfOnlyNumbersWarning(false);
   };
 
-  const handleRemove = async (id: string): Promise<void> => {
-    setError("");
+  const handleRemove = async (student: Student): Promise<void> => {
+    const confirmed = window.confirm(`Confirma a remocao do aluno ${student.name}?`);
+    if (!confirmed) {
+      return;
+    }
 
     try {
-      await deleteStudent(id);
+      await deleteStudent(student.id);
+      showToast("Aluno removido com sucesso.", "success");
       await loadStudents();
     } catch (deleteError) {
-      setError((deleteError as Error).message);
+      showToast((deleteError as Error).message, "error");
     }
   };
 
   return (
     <main className="page">
+      <aside className="toast-container" aria-live="polite" aria-label="Notificacoes do sistema">
+        {toasts.map((toast) => (
+          <div key={toast.id} className={`toast ${toast.type}`}>
+            <p>{toast.message}</p>
+            <button
+              type="button"
+              className="toast-close"
+              onClick={() => removeToast(toast.id)}
+              aria-label="Fechar notificacao"
+            >
+              x
+            </button>
+          </div>
+        ))}
+      </aside>
+
       <section className="panel">
         <h1>Gerenciamento de alunos</h1>
         <p className="subtitle">Lista de alunos cadastrados com nome, CPF e email.</p>
@@ -106,29 +224,55 @@ const App = (): JSX.Element => {
           <input
             id="name"
             value={form.name}
-            onChange={(event) => setForm({ ...form, name: event.target.value })}
+            onChange={(event) => updateField("name", event.target.value)}
+            onBlur={() => markFieldTouched("name")}
             required
             minLength={3}
+            aria-invalid={Boolean((hasSubmitted || touched.name) && formErrors.name)}
+            className={(hasSubmitted || touched.name) && formErrors.name ? "invalid" : ""}
           />
+          {(hasSubmitted || touched.name) && formErrors.name ? (
+            <p className="field-error">{formErrors.name}</p>
+          ) : null}
 
           <label htmlFor="cpf">CPF</label>
           <input
             id="cpf"
             value={form.cpf}
-            onChange={(event) => setForm({ ...form, cpf: onlyDigits(event.target.value) })}
+            onChange={(event) => {
+              const rawValue = event.target.value;
+              const digits = onlyDigits(rawValue).slice(0, 11);
+              setCpfOnlyNumbersWarning(rawValue !== digits);
+              updateField("cpf", digits);
+            }}
+            onBlur={() => markFieldTouched("cpf")}
             required
             pattern="[0-9]{11}"
             title="Informe 11 digitos numericos"
+            aria-invalid={Boolean((hasSubmitted || touched.cpf) && formErrors.cpf)}
+            className={(hasSubmitted || touched.cpf) && formErrors.cpf ? "invalid" : ""}
           />
+          {cpfOnlyNumbersWarning ? (
+            <p className="field-warning">CPF so aceita numeros. Caracteres invalidos foram removidos.</p>
+          ) : null}
+          {(hasSubmitted || touched.cpf) && formErrors.cpf ? (
+            <p className="field-error">{formErrors.cpf}</p>
+          ) : null}
 
           <label htmlFor="email">Email</label>
           <input
             id="email"
             type="email"
             value={form.email}
-            onChange={(event) => setForm({ ...form, email: event.target.value })}
+            onChange={(event) => updateField("email", event.target.value)}
+            onBlur={() => markFieldTouched("email")}
             required
+            aria-invalid={Boolean((hasSubmitted || touched.email) && formErrors.email)}
+            className={(hasSubmitted || touched.email) && formErrors.email ? "invalid" : ""}
           />
+          {(hasSubmitted || touched.email) && formErrors.email ? (
+            <p className="field-error">{formErrors.email}</p>
+          ) : null}
 
           <div className="actions">
             <button type="submit" disabled={isSubmitting}>
@@ -141,8 +285,6 @@ const App = (): JSX.Element => {
             ) : null}
           </div>
         </form>
-
-        {error ? <p className="error">{error}</p> : null}
 
         <section className="student-list-section" aria-label="Lista de alunos">
           <h2>Alunos cadastrados</h2>
@@ -172,7 +314,7 @@ const App = (): JSX.Element => {
                       <button
                         type="button"
                         className="small danger"
-                        onClick={() => void handleRemove(student.id)}
+                        onClick={() => void handleRemove(student)}
                       >
                         Remover
                       </button>
