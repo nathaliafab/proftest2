@@ -2,6 +2,14 @@
 
 Sistema web inicial para gerenciamento de alunos e avaliacoes.
 
+## Screenshots
+
+| | |
+|:---:|:---:|
+| ![Alunos 1](img/1.png) | ![Alunos 2](img/2.png) |
+| ![Avaliacoes 1](img/3.png) | ![Avaliacoes 2](img/4.png) |
+| ![Turmas 1](img/5.png) | ![Turmas 2](img/6.png) |
+
 ## Stack obrigatoria
 
 - Cliente: React + TypeScript
