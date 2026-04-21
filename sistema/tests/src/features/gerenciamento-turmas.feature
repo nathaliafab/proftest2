@@ -29,3 +29,8 @@ Funcionalidade: Gerenciamento de turmas
     E que existe uma turma com topico "POO", ano 2026, semestre 1 e o aluno cadastrado
     Quando eu atualizo na turma a avaliacao do aluno na meta "Requisitos" para "MA"
     Entao a avaliacao da turma para esse aluno na meta "Requisitos" deve ser "MA"
+
+  Cenario: Rejeitar turma com aluno inexistente
+    Dado que nao existem alunos cadastrados
+    Quando eu tento cadastrar turma com aluno inexistente
+    Entao devo receber erro de validacao da turma

@@ -203,12 +203,16 @@ Arquivo: sistema/tests/src/features/gerenciamento-alunos.feature
 - alterar aluno existente
 - remover aluno existente
 - rejeitar cadastro com email invalido
+- rejeitar cadastro com CPF duplicado
 
 Arquivo: sistema/tests/src/features/gerenciamento-avaliacoes.feature
 
 - listar matriz de avaliacoes por aluno
 - atualizar avaliacao por meta
 - rejeitar conceito invalido na avaliacao
+- forcar envio de email com consolidacao de multiplas metas no dia
+- forcar envio de email consolidando alteracoes em turmas diferentes
+- forcar envio sem alteracoes pendentes
 
 Arquivo: sistema/tests/src/features/gerenciamento-turmas.feature
 
@@ -216,3 +220,4 @@ Arquivo: sistema/tests/src/features/gerenciamento-turmas.feature
 - alterar dados de turma
 - remover turma
 - atualizar avaliacao de aluno dentro da turma
+- rejeitar turma com aluno inexistente

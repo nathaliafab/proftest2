@@ -20,3 +20,4 @@ GPT-5.3-Codex (Medium) - GitHub Copilot - Skills and Agents
 | preciso que você implemente o envio de email de verdade, não no log. use o node mailer para isso: https://nodemailer.com/guides/using-gmail
 deixe tanto o email quando a senha smtp num arquivo env e deixe que eu preencho os valores. | o email tá sendo enviado vazio | +/- | Eu não usaria novamente para a mesma tarefa | - |
 | o email está sendo enviado mas está sem conteúdo. | - | OK | Eu usaria novamente para a mesma tarefa | - |
+| agora, preciso que vc revise os cenários e os steps para ver se estão suficientemente complexos e cobrindo casos importantes. cada feature precisa ter um arquivo de steps separado. também revise o readme para ver se está de acordo com as features e rotas que existem no sistema | - | OK | Eu usaria novamente para a mesma tarefa | - |

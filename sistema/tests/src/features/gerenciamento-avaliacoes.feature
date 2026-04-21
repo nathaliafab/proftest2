@@ -41,3 +41,8 @@ Funcionalidade: Gerenciamento de avaliacoes
     Entao deve existir 1 email enviado para esse aluno
     E o ultimo email enviado deve conter a turma "Backend"
     E o ultimo email enviado deve conter a turma "Frontend"
+
+  Cenario: Forcar envio sem alteracoes pendentes
+    Dado que existe um aluno com nome "Julia Sena", cpf "77788899910" e email "julia@escola.com"
+    Quando eu forco o envio do email de avaliacoes desse aluno
+    Entao devo receber confirmacao de que nao havia emails pendentes

@@ -25,3 +25,8 @@ Funcionalidade: Gerenciamento de alunos
     Dado que nao existem alunos cadastrados
     Quando eu tento cadastrar um aluno com email invalido
     Entao devo receber erro de validacao
+
+  Cenario: Rejeitar cadastro com CPF duplicado
+    Dado que existe um aluno com nome "Laura Campos", cpf "11122233344" e email "laura@escola.com"
+    Quando eu tento cadastrar outro aluno com mesmo cpf "11122233344" e email "laura2@escola.com"
+    Entao devo receber erro de conflito
