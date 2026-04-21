@@ -31,6 +31,15 @@ interface Classroom {
   }>;
 }
 
+interface SentDigestLog {
+  studentId: string;
+  studentEmail: string;
+  date: string;
+  subject: string;
+  body: string;
+  sentAt: string;
+}
+
 interface TestContext {
   api: AxiosInstance;
   students: Student[];
@@ -44,6 +53,10 @@ interface TestContext {
   classroom: Classroom | null;
   classrooms: Classroom[];
   lastStatusCode: number | null;
+  forcedSendCount: number;
+  sentDigests: SentDigestLog[];
+  backendClassroomId: string | null;
+  frontendClassroomId: string | null;
 }
 
 const context: TestContext = {
@@ -61,7 +74,11 @@ const context: TestContext = {
   classroomId: null,
   classroom: null,
   classrooms: [],
-  lastStatusCode: null
+  lastStatusCode: null,
+  forcedSendCount: 0,
+  sentDigests: [],
+  backendClassroomId: null,
+  frontendClassroomId: null
 };
 
 const waitForServer = async (): Promise<void> => {
@@ -118,6 +135,10 @@ Before(async () => {
   context.classroom = null;
   context.classrooms = [];
   context.lastStatusCode = null;
+  context.forcedSendCount = 0;
+  context.sentDigests = [];
+  context.backendClassroomId = null;
+  context.frontendClassroomId = null;
 });
 
 Given("que nao existem alunos cadastrados", async () => {
@@ -436,3 +457,92 @@ Then(
     assert.strictEqual(studentRow.evaluations[goal], concept);
   }
 );
+
+When("eu forco o envio do email de avaliacoes desse aluno", async () => {
+  assert.ok(context.createdStudent);
+  const response = await context.api.post<{ sentCount: number }>(
+    `/notifications/force-send/${context.createdStudent.id}`
+  );
+  assert.strictEqual(response.status, 200);
+  context.forcedSendCount = response.data.sentCount;
+
+  const sentResponse = await context.api.get<SentDigestLog[]>(
+    `/notifications/sent/${context.createdStudent.id}`
+  );
+  assert.strictEqual(sentResponse.status, 200);
+  context.sentDigests = sentResponse.data;
+});
+
+Then("devo receber confirmacao de envio forcado com pelo menos 1 email", () => {
+  assert.ok(context.forcedSendCount >= 1);
+});
+
+Then("deve existir {int} email enviado para esse aluno", (count: number) => {
+  assert.strictEqual(context.sentDigests.length, count);
+});
+
+Then("o ultimo email enviado deve conter a meta {string}", (goal: string) => {
+  assert.ok(context.sentDigests.length > 0);
+  const last = context.sentDigests[context.sentDigests.length - 1];
+  assert.ok(last.body.includes(goal));
+});
+
+Given("que existem turmas {string} e {string} para esse aluno", async (firstTopic: string, secondTopic: string) => {
+  assert.ok(context.createdStudent);
+
+  const firstResponse = await context.api.post<Classroom>("/classrooms", {
+    topic: firstTopic,
+    year: 2026,
+    semester: 1,
+    studentIds: [context.createdStudent.id]
+  });
+
+  assert.strictEqual(firstResponse.status, 201);
+  context.backendClassroomId = firstResponse.data.id;
+
+  const secondResponse = await context.api.post<Classroom>("/classrooms", {
+    topic: secondTopic,
+    year: 2026,
+    semester: 2,
+    studentIds: [context.createdStudent.id]
+  });
+
+  assert.strictEqual(secondResponse.status, 201);
+  context.frontendClassroomId = secondResponse.data.id;
+});
+
+When(
+  "eu atualizo na turma {string} a avaliacao desse aluno na meta {string} para {string}",
+  async (topic: string, goal: string, concept: string) => {
+    assert.ok(context.createdStudent);
+
+    const listResponse = await context.api.get<Classroom[]>("/classrooms");
+    assert.strictEqual(listResponse.status, 200);
+
+    const classroom = listResponse.data.find((item) => item.topic === topic);
+    assert.ok(classroom);
+
+    const studentRow = classroom.students.find(
+      (student) => student.studentId === context.createdStudent?.id
+    );
+    assert.ok(studentRow);
+
+    const updateResponse = await context.api.put<Classroom>(
+      `/classrooms/${classroom.id}/evaluations/${context.createdStudent.id}`,
+      {
+        evaluations: {
+          ...studentRow.evaluations,
+          [goal]: concept
+        }
+      }
+    );
+
+    assert.strictEqual(updateResponse.status, 200);
+  }
+);
+
+Then("o ultimo email enviado deve conter a turma {string}", (topic: string) => {
+  assert.ok(context.sentDigests.length > 0);
+  const last = context.sentDigests[context.sentDigests.length - 1];
+  assert.ok(last.body.includes(topic));
+});

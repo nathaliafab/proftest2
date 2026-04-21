@@ -169,3 +169,15 @@ export const updateClassroomStudentEvaluations = async (
 
   return (await response.json()) as Classroom;
 };
+
+export const forceSendStudentDigest = async (studentId: string): Promise<{ sentCount: number }> => {
+  const response = await fetch(`${baseUrl}/notifications/force-send/${studentId}`, {
+    method: "POST"
+  });
+
+  if (!response.ok) {
+    throw new Error(await parseError(response));
+  }
+
+  return (await response.json()) as { sentCount: number };
+};

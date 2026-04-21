@@ -27,6 +27,7 @@ Gerenciamento de avaliacoes em pagina separada com:
 - legenda visual dos conceitos (MANA vermelho, MPA amarelo, MA verde)
 - filtro por aluno e por meta/conceito
 - ordenacao por aluno ou por meta (crescente/decrescente)
+- notificacao diaria por email para cada aluno com consolidacao das alteracoes de avaliacao
 
 Gerenciamento de turmas com:
 
@@ -105,6 +106,38 @@ Base URL: http://localhost:3001
 - PUT /classrooms/:id: altera uma turma
 - DELETE /classrooms/:id: remove uma turma
 - PUT /classrooms/:id/evaluations/:studentId: atualiza avaliacao do aluno na turma
+
+## Notificacoes de avaliacao por email
+
+- Cada alteracao de avaliacao entra em uma fila diaria por aluno.
+- E enviado no maximo 1 email por aluno por dia, com todas as metas alteradas no dia.
+- O resumo pode incluir alteracoes de varias turmas no mesmo email.
+- A tela de avaliacoes possui botao para forcar envio imediato do digest do aluno.
+- O envio usa Nodemailer com Gmail SMTP e registra historico em arquivo JSON.
+
+Endpoints de notificacao:
+
+- POST /notifications/force-send/:studentId: forca envio imediato dos digests pendentes do aluno
+- GET /notifications/sent/:studentId: consulta historico de digests enviados para o aluno
+
+Arquivos de notificacao no diretório de dados do servidor (`DATA_DIR`):
+
+- `pending-digests.json`: fila de digests pendentes
+- `sent-digests.json`: historico de emails enviados
+
+Variaveis de ambiente do servidor:
+
+- `DATA_DIR`: diretório base dos arquivos JSON (default: `./data`)
+- `DIGEST_DISPATCH_INTERVAL_MS`: intervalo de verificacao da fila de digests (default: `60000`)
+- `SMTP_USER`: email da conta Gmail usada para envio
+- `SMTP_PASS`: App Password da conta Gmail
+- `SMTP_FROM`: remetente exibido no email (opcional, usa `SMTP_USER` se vazio)
+
+Configuracao de SMTP:
+
+- Preencha o arquivo `sistema/server/.env` com `SMTP_USER` e `SMTP_PASS`.
+- O arquivo modelo esta em `sistema/server/.env.example`.
+- Para testes automatizados, o servico `server-tests` usa `SMTP_MOCK=true` no Docker Compose para nao depender de credenciais reais.
 
 ### Exemplo de payload para criar/alterar turma
 

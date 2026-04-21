@@ -1,5 +1,10 @@
 import { useEffect, useMemo, useState } from "react";
-import { getClassrooms, getStudents, updateClassroomStudentEvaluations } from "../api";
+import {
+  forceSendStudentDigest,
+  getClassrooms,
+  getStudents,
+  updateClassroomStudentEvaluations
+} from "../api";
 import { Classroom, EvaluationConcept, Student } from "../types";
 
 interface AssessmentsPageProps {
@@ -11,6 +16,7 @@ const AssessmentsPage = ({ showToast }: AssessmentsPageProps): JSX.Element => {
   const [students, setStudents] = useState<Student[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [savingCell, setSavingCell] = useState<string | null>(null);
+  const [sendingDigestStudentId, setSendingDigestStudentId] = useState<string | null>(null);
   const [studentFilter, setStudentFilter] = useState<string>("");
   const [classroomFilter, setClassroomFilter] = useState<string>("");
   const [goalFilter, setGoalFilter] = useState<string>("");
@@ -174,6 +180,23 @@ const AssessmentsPage = ({ showToast }: AssessmentsPageProps): JSX.Element => {
     }
   };
 
+  const forceSendDigest = async (studentId: string): Promise<void> => {
+    setSendingDigestStudentId(studentId);
+
+    try {
+      const response = await forceSendStudentDigest(studentId);
+      if (response.sentCount > 0) {
+        showToast("Email enviado com sucesso.", "success");
+      } else {
+        showToast("Nao ha alteracoes pendentes para envio hoje.", "warning");
+      }
+    } catch (error) {
+      showToast((error as Error).message, "error");
+    } finally {
+      setSendingDigestStudentId(null);
+    }
+  };
+
   return (
     <section className="panel">
       <h1>Gerenciamento de avaliacoes</h1>
@@ -306,6 +329,7 @@ const AssessmentsPage = ({ showToast }: AssessmentsPageProps): JSX.Element => {
                 {goals.map((goal) => (
                   <th key={goal}>{goal}</th>
                 ))}
+                <th>Email</th>
               </tr>
             </thead>
             <tbody>
@@ -343,6 +367,16 @@ const AssessmentsPage = ({ showToast }: AssessmentsPageProps): JSX.Element => {
                       </td>
                     );
                   })}
+                  <td>
+                    <button
+                      type="button"
+                      className="small"
+                      disabled={sendingDigestStudentId === row.studentId}
+                      onClick={() => void forceSendDigest(row.studentId)}
+                    >
+                      Enviar email agora
+                    </button>
+                  </td>
                 </tr>
               ))}
             </tbody>

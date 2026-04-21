@@ -2,6 +2,8 @@ services:
   server:
     build: ./server
     container_name: sistema-server
+    env_file:
+      - ./server/.env
     ports:
       - "3001:3001"
     volumes:
@@ -20,6 +22,7 @@ services:
       - NODE_ENV=test
       - PORT=3001
       - DATA_DIR=/app/test-data
+      - SMTP_MOCK=true
     volumes:
       - server_test_data:/app/test-data
     command: npm run dev

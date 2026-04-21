@@ -10,6 +10,7 @@ import {
 } from "../types/assessment";
 import { Student } from "../types/student";
 import { buildDefaultEvaluations, normalizeStudents } from "./studentNormalization";
+import { queueStudentAssessmentDigestChanges } from "./notificationService";
 
 const updateAssessmentSchema = z.object({
   evaluations: z
@@ -73,14 +74,32 @@ export const updateStudentAssessments = async (
   }
 
   const targetStudent = students[studentIndex];
+  const mergedEvaluations = mergeEvaluations(targetStudent.evaluations, parsed.evaluations);
+  const changedGoals = GOALS.filter((goal) => targetStudent.evaluations[goal] !== mergedEvaluations[goal]);
+
   const updatedStudent: Student = {
     ...targetStudent,
-    evaluations: mergeEvaluations(targetStudent.evaluations, parsed.evaluations),
+    evaluations: mergedEvaluations,
     updatedAt: new Date().toISOString()
   };
 
   students[studentIndex] = updatedStudent;
   await writeStudents(students);
+
+  if (changedGoals.length > 0) {
+    await queueStudentAssessmentDigestChanges({
+      studentId: targetStudent.id,
+      studentName: targetStudent.name,
+      studentEmail: targetStudent.email,
+      classroomId: null,
+      classroomName: "-",
+      changes: changedGoals.map((goal) => ({
+        goal,
+        previousConcept: targetStudent.evaluations[goal],
+        nextConcept: mergedEvaluations[goal]
+      }))
+    });
+  }
 
   return toAssessmentRow(updatedStudent);
 };

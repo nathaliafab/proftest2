@@ -1,0 +1,3 @@
+sistema/server/data/pending-digests.json
+sistema/server/data/sent-digests.json
+sistema/server/.env

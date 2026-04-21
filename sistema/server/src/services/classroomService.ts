@@ -10,6 +10,7 @@ import {
   ClassroomStudentView
 } from "../types/classroom";
 import { buildDefaultEvaluations, normalizeStudents } from "./studentNormalization";
+import { queueStudentAssessmentDigestChanges } from "./notificationService";
 
 const classroomInputSchema = z.object({
   topic: z.string().trim().min(3, "Topico deve ter ao menos 3 caracteres"),
@@ -246,6 +247,10 @@ export const updateClassroomStudentAssessments = async (
     {} as Record<Goal, EvaluationConcept>
   );
 
+  const changedGoals = GOALS.filter(
+    (goal) => classroom.studentEvaluations[studentId][goal] !== updatedEvaluations[goal]
+  );
+
   const updatedClassroom: Classroom = {
     ...classroom,
     studentEvaluations: {
@@ -258,7 +263,30 @@ export const updateClassroomStudentAssessments = async (
   classrooms[classroomIndex] = updatedClassroom;
   await writeClassrooms(classrooms);
 
-  const studentNamesById = await buildStudentNamesLookup();
+  const students = normalizeStudents(await readStudents());
+  const targetStudent = students.find((student) => student.id === studentId);
+  if (targetStudent && changedGoals.length > 0) {
+    await queueStudentAssessmentDigestChanges({
+      studentId,
+      studentName: targetStudent.name,
+      studentEmail: targetStudent.email,
+      classroomId: classroom.id,
+      classroomName: `${classroom.topic} (${classroom.year}/${classroom.semester})`,
+      changes: changedGoals.map((goal) => ({
+        goal,
+        previousConcept: classroom.studentEvaluations[studentId][goal],
+        nextConcept: updatedEvaluations[goal]
+      }))
+    });
+  }
+
+  const studentNamesById = students.reduce(
+    (acc, student) => ({
+      ...acc,
+      [student.id]: student.name
+    }),
+    {} as Record<string, string>
+  );
   return toClassroomView(updatedClassroom, studentNamesById);
 };
 
