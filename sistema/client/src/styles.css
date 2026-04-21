@@ -1,0 +1,164 @@
+:root {
+  color-scheme: light;
+  font-family: "Trebuchet MS", "Segoe UI", sans-serif;
+  background: radial-gradient(circle at top right, #c5e4ff, #eff8ff 45%, #f9fbff 80%);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  color: #10213c;
+}
+
+.page {
+  min-height: 100vh;
+  padding: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.panel {
+  width: min(980px, 100%);
+  background: #ffffffd9;
+  backdrop-filter: blur(4px);
+  border: 1px solid #d5e3f5;
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: 0 10px 30px #1a3f6f24;
+}
+
+h1 {
+  margin: 0;
+}
+
+.subtitle {
+  margin-top: 8px;
+  color: #3f5472;
+}
+
+.student-form {
+  margin-top: 20px;
+  display: grid;
+  gap: 8px;
+  grid-template-columns: 1fr;
+}
+
+label {
+  font-weight: 700;
+}
+
+input {
+  width: 100%;
+  border: 1px solid #b7cae7;
+  border-radius: 8px;
+  padding: 10px;
+  font-size: 1rem;
+}
+
+.actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+button {
+  border: none;
+  border-radius: 8px;
+  padding: 10px 14px;
+  background: #0a5db5;
+  color: #fff;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+button.ghost {
+  background: #dbe8f7;
+  color: #0f2b4f;
+}
+
+button.small {
+  margin-right: 8px;
+  padding: 8px 10px;
+  font-size: 0.9rem;
+}
+
+button.danger {
+  background: #b52020;
+}
+
+button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.error {
+  color: #9d1f1f;
+  background: #fee;
+  border: 1px solid #f7c6c6;
+  border-radius: 8px;
+  padding: 10px;
+  margin-top: 14px;
+}
+
+.student-list-section {
+  margin-top: 20px;
+}
+
+.student-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 8px;
+  overflow: hidden;
+}
+
+.student-table th,
+.student-table td {
+  text-align: left;
+  border-bottom: 1px solid #deebfb;
+  padding: 10px;
+}
+
+.student-table th {
+  background: #f0f6ff;
+}
+
+@media (max-width: 760px) {
+  .page {
+    padding: 12px;
+  }
+
+  .panel {
+    padding: 16px;
+  }
+
+  .student-table,
+  .student-table thead,
+  .student-table tbody,
+  .student-table tr,
+  .student-table th,
+  .student-table td {
+    display: block;
+  }
+
+  .student-table thead {
+    display: none;
+  }
+
+  .student-table tr {
+    border: 1px solid #deebfb;
+    border-radius: 10px;
+    margin-bottom: 10px;
+    background: #f7fbff;
+    padding: 8px;
+  }
+
+  .student-table td {
+    border: none;
+    padding: 6px;
+  }
+}

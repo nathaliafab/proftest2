@@ -1,2 +1,99 @@
 # proftest2
-o retorno
+
+Sistema web inicial para gerenciamento de alunos e avaliacoes.
+
+## Stack obrigatoria
+
+- Cliente: React + TypeScript
+- Servidor: Node.js + TypeScript
+- Testes de aceitacao: Cucumber + Gherkin
+- Execucao: somente via Docker Compose
+
+## Funcionalidade inicial entregue
+
+Gerenciamento de alunos com:
+
+- inclusao de aluno
+- alteracao de aluno
+- remocao de aluno
+- pagina especifica com listagem de alunos cadastrados
+
+Cada aluno possui os campos:
+
+- nome
+- CPF
+- email
+
+## Estrutura de pastas
+
+- sistema/server: API REST em Node.js + TypeScript
+- sistema/client: interface React + TypeScript
+- sistema/tests: testes de aceitacao com Cucumber
+
+## Como executar em desenvolvimento
+
+Subir cliente e servidor:
+
+```bash
+docker compose -f sistema/docker-compose.yml up --build
+```
+
+Aplicacao cliente: http://localhost:3000  
+API servidor: http://localhost:3001
+
+## Build via Docker
+
+Build do servidor:
+
+```bash
+docker compose -f sistema/docker-compose.yml run --rm server npm run build
+```
+
+Build do cliente:
+
+```bash
+docker compose -f sistema/docker-compose.yml run --rm client npm run build
+```
+
+## Testes de aceitacao via Docker
+
+```bash
+docker compose -f sistema/docker-compose.yml run --rm tests npm test
+```
+
+## API de alunos
+
+Base URL: http://localhost:3001
+
+- GET /health: status da API
+- GET /students: lista todos os alunos
+- POST /students: cria um aluno
+- PUT /students/:id: altera um aluno
+- DELETE /students/:id: remove um aluno
+
+### Exemplo de payload
+
+```json
+{
+	"name": "Ana Silva",
+	"cpf": "12345678901",
+	"email": "ana@escola.com"
+}
+```
+
+## Validacoes iniciais implementadas
+
+- nome com no minimo 3 caracteres
+- CPF com 11 digitos numericos
+- email valido
+- CPF unico
+- email unico
+
+## Cenarios de aceitacao (Gherkin)
+
+Arquivo: sistema/tests/src/features/gerenciamento-alunos.feature
+
+- cadastrar e listar aluno
+- alterar aluno existente
+- remover aluno existente
+- rejeitar cadastro com email invalido

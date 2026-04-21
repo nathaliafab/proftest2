@@ -1,0 +1,14 @@
+{
+  "name": "sistema-tests",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "test": "cucumber-js --require-module ts-node/register --require src/steps/**/*.ts src/features/**/*.feature"
+  },
+  "dependencies": {
+    "@cucumber/cucumber": "^10.8.0",
+    "axios": "^1.7.2",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.5.4"
+  }
+}
