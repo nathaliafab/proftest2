@@ -96,6 +96,15 @@ input:focus {
   outline-offset: 1px;
 }
 
+select {
+  width: 100%;
+  border: 1px solid #b7cae7;
+  border-radius: 8px;
+  padding: 10px;
+  font-size: 0.95rem;
+  background: #fff;
+}
+
 .helper-text {
   margin: 0;
   color: #465d7f;
@@ -213,6 +222,37 @@ button:disabled {
 
 .student-list-section {
   margin-top: 20px;
+}
+
+.classroom-details {
+  margin-top: 24px;
+  border-top: 1px solid #dce9fb;
+  padding-top: 16px;
+}
+
+.students-fieldset {
+  margin: 10px 0 0;
+  border: 1px solid #cfe0f7;
+  border-radius: 10px;
+  padding: 10px;
+}
+
+.students-fieldset legend {
+  font-weight: 700;
+  color: #1d3f67;
+  padding: 0 6px;
+}
+
+.checkbox-line {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 500;
+  margin-bottom: 6px;
+}
+
+.checkbox-line input[type="checkbox"] {
+  width: auto;
 }
 
 .assessment-table-wrapper {

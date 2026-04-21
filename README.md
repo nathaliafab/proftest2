@@ -28,6 +28,14 @@ Gerenciamento de avaliacoes em pagina separada com:
 - filtro por aluno e por meta/conceito
 - ordenacao por aluno ou por meta (crescente/decrescente)
 
+Gerenciamento de turmas com:
+
+- inclusao, alteracao e remocao de turmas
+- topico, ano e semestre por turma
+- alunos matriculados por turma
+- avaliacoes por aluno dentro de cada turma
+- visualizacao separada de cada turma com sua propria tabela de alunos e conceitos
+
 Cada aluno possui os campos:
 
 - nome
@@ -86,6 +94,26 @@ Base URL: http://localhost:3001
 - GET /assessments: retorna matriz de avaliacoes (metas, conceitos e linhas por aluno)
 - PUT /assessments/:studentId: atualiza as avaliacoes do aluno informado
 
+## API de turmas
+
+- GET /classrooms: lista turmas com alunos e avaliacoes da turma
+- GET /classrooms/:id: detalha uma turma especifica
+- POST /classrooms: cria uma turma
+- PUT /classrooms/:id: altera uma turma
+- DELETE /classrooms/:id: remove uma turma
+- PUT /classrooms/:id/evaluations/:studentId: atualiza avaliacao do aluno na turma
+
+### Exemplo de payload para criar/alterar turma
+
+```json
+{
+	"topic": "Introducao a Programacao",
+	"year": 2026,
+	"semester": 1,
+	"studentIds": ["id-do-aluno-1", "id-do-aluno-2"]
+}
+```
+
 ### Exemplo de payload para atualizar avaliacao
 
 ```json
@@ -129,6 +157,7 @@ Base URL: http://localhost:3001
 
 - /alunos: gerenciamento de cadastro de alunos
 - /avaliacoes: gerenciamento das avaliacoes por metas
+- /turmas: gerenciamento de turmas com alunos matriculados e avaliacoes por turma
 
 ## Cenarios de aceitacao (Gherkin)
 
@@ -144,3 +173,10 @@ Arquivo: sistema/tests/src/features/gerenciamento-avaliacoes.feature
 - listar matriz de avaliacoes por aluno
 - atualizar avaliacao por meta
 - rejeitar conceito invalido na avaliacao
+
+Arquivo: sistema/tests/src/features/gerenciamento-turmas.feature
+
+- cadastrar e consultar turma com alunos matriculados
+- alterar dados de turma
+- remover turma
+- atualizar avaliacao de aluno dentro da turma

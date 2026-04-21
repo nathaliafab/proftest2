@@ -27,3 +27,26 @@ export interface AssessmentMatrix {
   concepts: EvaluationConcept[];
   rows: AssessmentRow[];
 }
+
+export interface ClassroomStudentView {
+  studentId: string;
+  studentName: string;
+  evaluations: Record<string, EvaluationConcept>;
+}
+
+export interface Classroom {
+  id: string;
+  topic: string;
+  year: number;
+  semester: number;
+  students: ClassroomStudentView[];
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface ClassroomInput {
+  topic: string;
+  year: number;
+  semester: number;
+  studentIds: string[];
+}

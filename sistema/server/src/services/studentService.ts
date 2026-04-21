@@ -3,6 +3,7 @@ import { z } from "zod";
 import { readStudents, writeStudents } from "../repositories/studentRepository";
 import { Student, StudentInput } from "../types/student";
 import { buildDefaultEvaluations, normalizeStudents } from "./studentNormalization";
+import { removeStudentFromAllClassrooms } from "./classroomService";
 
 const normalizeCpf = (cpf: string): string => cpf.replace(/\D/g, "");
 
@@ -101,4 +102,5 @@ export const deleteStudent = async (id: string): Promise<void> => {
   }
 
   await writeStudents(filteredStudents);
+  await removeStudentFromAllClassrooms(id);
 };

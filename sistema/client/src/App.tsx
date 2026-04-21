@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Navigate, NavLink, Route, Routes } from "react-router-dom";
 import AssessmentsPage from "./pages/AssessmentsPage";
+import ClassroomsPage from "./pages/ClassroomsPage";
 import StudentsPage from "./pages/StudentsPage";
 
 interface Toast {
@@ -57,12 +58,19 @@ const App = (): JSX.Element => {
           >
             Avaliacoes
           </NavLink>
+          <NavLink
+            to="/turmas"
+            className={({ isActive }) => (isActive ? "nav-link active" : "nav-link")}
+          >
+            Turmas
+          </NavLink>
         </nav>
 
         <Routes>
           <Route path="/" element={<Navigate to="/alunos" replace />} />
           <Route path="/alunos" element={<StudentsPage showToast={showToast} />} />
           <Route path="/avaliacoes" element={<AssessmentsPage showToast={showToast} />} />
+          <Route path="/turmas" element={<ClassroomsPage showToast={showToast} />} />
         </Routes>
       </div>
     </main>

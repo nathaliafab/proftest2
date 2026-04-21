@@ -19,6 +19,18 @@ interface AssessmentMatrix {
   }>;
 }
 
+interface Classroom {
+  id: string;
+  topic: string;
+  year: number;
+  semester: number;
+  students: Array<{
+    studentId: string;
+    studentName: string;
+    evaluations: Record<string, string>;
+  }>;
+}
+
 interface TestContext {
   api: AxiosInstance;
   students: Student[];
@@ -27,6 +39,10 @@ interface TestContext {
   deleteTargetId: string | null;
   matrix: AssessmentMatrix | null;
   assessmentTargetId: string | null;
+  secondStudentId: string | null;
+  classroomId: string | null;
+  classroom: Classroom | null;
+  classrooms: Classroom[];
   lastStatusCode: number | null;
 }
 
@@ -41,6 +57,10 @@ const context: TestContext = {
   deleteTargetId: null,
   matrix: null,
   assessmentTargetId: null,
+  secondStudentId: null,
+  classroomId: null,
+  classroom: null,
+  classrooms: [],
   lastStatusCode: null
 };
 
@@ -72,8 +92,20 @@ const clearStudents = async (): Promise<void> => {
   }
 };
 
+const clearClassrooms = async (): Promise<void> => {
+  const listResponse = await context.api.get<Classroom[]>("/classrooms");
+  if (listResponse.status >= 400) {
+    return;
+  }
+
+  for (const classroom of listResponse.data) {
+    await context.api.delete(`/classrooms/${classroom.id}`);
+  }
+};
+
 Before(async () => {
   await waitForServer();
+  await clearClassrooms();
   await clearStudents();
   context.students = [];
   context.createdStudent = null;
@@ -81,6 +113,10 @@ Before(async () => {
   context.deleteTargetId = null;
   context.matrix = null;
   context.assessmentTargetId = null;
+  context.secondStudentId = null;
+  context.classroomId = null;
+  context.classroom = null;
+  context.classrooms = [];
   context.lastStatusCode = null;
 });
 
@@ -115,9 +151,14 @@ Given(
   async (name: string, cpf: string, email: string) => {
     const response = await context.api.post<Student>("/students", { name, cpf, email });
     assert.strictEqual(response.status, 201);
-    context.createdStudent = response.data;
-    context.deleteTargetId = response.data.id;
-    context.assessmentTargetId = response.data.id;
+
+    if (!context.createdStudent) {
+      context.createdStudent = response.data;
+      context.deleteTargetId = response.data.id;
+      context.assessmentTargetId = response.data.id;
+    } else {
+      context.secondStudentId = response.data.id;
+    }
   }
 );
 
@@ -256,3 +297,142 @@ When(
 Then("devo receber erro de validacao na avaliacao", () => {
   assert.strictEqual(context.lastStatusCode, 400);
 });
+
+When(
+  "eu cadastro uma turma com topico {string}, ano {int}, semestre {int} e os alunos cadastrados",
+  async (topic: string, year: number, semester: number) => {
+    assert.ok(context.createdStudent);
+    assert.ok(context.secondStudentId);
+
+    const response = await context.api.post<Classroom>("/classrooms", {
+      topic,
+      year,
+      semester,
+      studentIds: [context.createdStudent.id, context.secondStudentId]
+    });
+
+    assert.strictEqual(response.status, 201);
+    context.classroomId = response.data.id;
+    context.classroom = response.data;
+  }
+);
+
+Then("devo encontrar a turma {string} na lista de turmas", async (topic: string) => {
+  const response = await context.api.get<Classroom[]>("/classrooms");
+  assert.strictEqual(response.status, 200);
+  context.classrooms = response.data;
+  assert.ok(response.data.some((classroom) => classroom.topic === topic));
+});
+
+Then("devo visualizar {int} alunos na turma selecionada", async (count: number) => {
+  assert.ok(context.classroomId);
+  const response = await context.api.get<Classroom>(`/classrooms/${context.classroomId}`);
+  assert.strictEqual(response.status, 200);
+  context.classroom = response.data;
+  assert.strictEqual(response.data.students.length, count);
+});
+
+Given(
+  "que existe uma turma com topico {string}, ano {int}, semestre {int} e o aluno cadastrado",
+  async (topic: string, year: number, semester: number) => {
+    assert.ok(context.createdStudent);
+
+    const response = await context.api.post<Classroom>("/classrooms", {
+      topic,
+      year,
+      semester,
+      studentIds: [context.createdStudent.id]
+    });
+
+    assert.strictEqual(response.status, 201);
+    context.classroomId = response.data.id;
+    context.classroom = response.data;
+  }
+);
+
+When(
+  "eu altero a turma para topico {string}, ano {int} e semestre {int}",
+  async (topic: string, year: number, semester: number) => {
+    assert.ok(context.classroomId);
+    assert.ok(context.createdStudent);
+
+    const response = await context.api.put<Classroom>(`/classrooms/${context.classroomId}`, {
+      topic,
+      year,
+      semester,
+      studentIds: [context.createdStudent.id]
+    });
+
+    assert.strictEqual(response.status, 200);
+    context.classroom = response.data;
+  }
+);
+
+Then("a turma alterada deve possuir topico {string}", (topic: string) => {
+  assert.ok(context.classroom);
+  assert.strictEqual(context.classroom.topic, topic);
+});
+
+Then("a turma alterada deve possuir semestre {int}", (semester: number) => {
+  assert.ok(context.classroom);
+  assert.strictEqual(context.classroom.semester, semester);
+});
+
+When("eu removo a turma cadastrada", async () => {
+  assert.ok(context.classroomId);
+  const response = await context.api.delete(`/classrooms/${context.classroomId}`);
+  assert.strictEqual(response.status, 204);
+});
+
+Then("nao devo encontrar a turma removida na lista", async () => {
+  const response = await context.api.get<Classroom[]>("/classrooms");
+  assert.strictEqual(response.status, 200);
+  assert.ok(context.classroomId);
+  assert.ok(!response.data.some((classroom) => classroom.id === context.classroomId));
+});
+
+When(
+  "eu atualizo na turma a avaliacao do aluno na meta {string} para {string}",
+  async (goal: string, concept: string) => {
+    assert.ok(context.classroomId);
+    assert.ok(context.createdStudent);
+
+    const classroomResponse = await context.api.get<Classroom>(`/classrooms/${context.classroomId}`);
+    assert.strictEqual(classroomResponse.status, 200);
+    const studentRow = classroomResponse.data.students.find(
+      (student) => student.studentId === context.createdStudent?.id
+    );
+    assert.ok(studentRow);
+
+    const response = await context.api.put<Classroom>(
+      `/classrooms/${context.classroomId}/evaluations/${context.createdStudent.id}`,
+      {
+        evaluations: {
+          ...studentRow.evaluations,
+          [goal]: concept
+        }
+      }
+    );
+
+    assert.strictEqual(response.status, 200);
+    context.classroom = response.data;
+  }
+);
+
+Then(
+  "a avaliacao da turma para esse aluno na meta {string} deve ser {string}",
+  async (goal: string, concept: string) => {
+    assert.ok(context.classroomId);
+    assert.ok(context.createdStudent);
+
+    const response = await context.api.get<Classroom>(`/classrooms/${context.classroomId}`);
+    assert.strictEqual(response.status, 200);
+
+    const studentRow = response.data.students.find(
+      (student) => student.studentId === context.createdStudent?.id
+    );
+
+    assert.ok(studentRow);
+    assert.strictEqual(studentRow.evaluations[goal], concept);
+  }
+);
