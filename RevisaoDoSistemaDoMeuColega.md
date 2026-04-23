@@ -22,10 +22,20 @@ A revisão do histórico do desenvolvimento do seu colega deve resumir:
 
 1. Estratégias de interação utilizada
 
+Começou com um prompt para estruturar bem o repositório, já com as tecnologias e diretórios corretos. Ele foi fazendo bem aos poucos, sendo bem especifico sobre tipos e como/onde deveria ser implementado determinadas coisas. Essa estratégia com certeza direcionou melhor o modelo a criar código de forma controlada.
+
 2. Situações em que o agente funcionou melhor ou pior
+
+Em geral o agente pareceu se comportar bem em todos os prompts, mas acredito que para o 10 (onde as rotas são criadas), não foi feito completamente a parte de metas (ou ao menos a conexão com o front), já que o endpoint não funcionou quando tentei usar a interface.
 
 3. Tipos de problemas observados (por exemplo, código incorreto ou inconsistências)
 
+Não houve problemas relatados. O único foi uma sugestão do que o modelo poderia ter feito (aproveitar de modelos já prontos para estruturar o repositório)
+
 4. Avaliação geral da utilidade do agente no desenvolvimento
 
+O agente foi muito útil. Entendi pelo histórico que o colega não interviu em nada manualmente. Considerando o resultado final, ficou bem satisfatório.
+
 5. Comparação com a sua experiência de uso do agente
+
+Meus prompts foram bem menos detalhados. Me guiei bastante pelo que já estava escrito no PDF, apenas incrementando em uma situação ou outra que achei necessário. Também, fiz uso de agente orquestrador e skills. O colega usou um AGENTS.md, que equivale em partes ao que fiz no meu
